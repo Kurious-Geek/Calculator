@@ -7,10 +7,9 @@ class app(tk.Tk):
 		super().__init__(*args, **kwargs)
 		self.title('Kalculator')
 
-		self.callbacks = {'arithmetic': self.arithmetic}
+		self.callbacks = {}
 
-		calc = v.calculator(self, self.callbacks)
-		calc.pack()
+		calc = v.calculator(self)
+		calc.grid()
 
-	def arithmetic(self):
-		pass
+
