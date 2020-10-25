@@ -7,39 +7,55 @@ class calculator(tk.Frame):
  		#self.callbacks = callbacks
 
  		self.button = {}
+ 		self.old = ''
+ 		self.expression = tk.StringVar()
 
- 		self.display = tk.Text(self, font=('Droid', 20), width=24, height=2)
- 		self.display.grid(row=0, columnspan=4)
+ 		display_bg = '#181818'
+ 		font = ('Times', 12)
+ 		num_button_bg = '#686868'
+ 		num_button_fg = 'white'
+ 		function_bg = '#585858'
 
- 		self.button['percent'] = tk.Button(self, text='%', padx=38, pady=20, command=lambda: self.arithmetic('%'))
- 		self.button['open_bracket'] = tk.Button(self, text='(', padx=41, pady=20, command=lambda:self.arithmetic('('))
- 		self.button['close_bracket'] = tk.Button(self, text=')', padx=40, pady=20, command=lambda:self.arithmetic(')'))
- 		self.clear_button = tk.Button(self, text=u'\u232b', padx=31, pady=20, command=self.clear)
+ 		self.config(bg=display_bg)		
 
- 		self.button['seven'] = tk.Button(self, text='7', padx=40, pady=20, command=lambda:self.arithmetic(7))
- 		self.button['eight'] = tk.Button(self, text='8', padx=40, pady=20, command=lambda:self.arithmetic(8))
- 		self.button['nine'] = tk.Button(self, text='9', padx=40, pady=20, command=lambda:self.arithmetic(9))
- 		self.button['divide'] = tk.Button(self, text=u'\u00F7', padx=34, pady=20, command=lambda:self.arithmetic('/'))
+ 		display_frame = tk.Frame(self, bg=display_bg)
+ 		display_frame.grid(row=0, columnspan=4, sticky=tk.E)
 
- 		self.button['four'] = tk.Button(self, text='4', padx=40, pady=20, command=lambda:self.arithmetic(4))
- 		self.button['five'] = tk.Button(self, text='5', padx=40, pady=20, command=lambda:self.arithmetic(5))
- 		self.button['six'] = tk.Button(self, text='6', padx=40, pady=20, command=lambda:self.arithmetic(6))
- 		self.button['multiply'] = tk.Button(self, text='X', padx=35, pady=20, command=lambda:self.arithmetic('*'))
+ 		self.display = ttk.Label(display_frame, font=('Droid', 25), textvariable=self.expression, justify='right', cursor='ibeam', wraplength='360', background=display_bg, foreground='white')
+ 		self.display.grid(row=0, sticky=tk.E, pady=20, padx=5)
 
- 		self.button['one'] = tk.Button(self, text='1', padx=40, pady=20, command=lambda:self.arithmetic(1))
- 		self.button['two'] = tk.Button(self, text='2', padx=40, pady=20, command=lambda:self.arithmetic(2))
- 		self.button['three'] = tk.Button(self, text='3', padx=40, pady=20, command=lambda:self.arithmetic(3))
- 		self.button['substract'] = tk.Button(self, text='-', padx=36, pady=20, command=lambda:self.arithmetic('-'))
+ 		self.button_frame = tk.Frame(self, bg=num_button_bg)
+ 		self.button_frame.grid(row=1)
+ 		
+ 		self.button['open_bracket'] = tk.Button(self.button_frame, text='(', font=font, padx=38.5, pady=20, relief=tk.FLAT, background=function_bg, foreground=num_button_fg, command=lambda:self.integer_inp('('))
+ 		self.button['close_bracket'] = tk.Button(self.button_frame, text=')', font=font, padx=38.5, pady=20, relief=tk.FLAT, background=function_bg, foreground=num_button_fg, command=lambda:self.integer_inp(')'))
+ 		self.button_cancel_everything = tk.Button(self.button_frame, text='CE', font=font, padx=31, pady=20, relief=tk.FLAT, background=function_bg, foreground=num_button_fg, command=self.clear_all)
+ 		self.back_button = tk.Button(self.button_frame, text=u'\u232b', font=font, padx=27, pady=20, relief=tk.FLAT, background=function_bg, foreground=num_button_fg, command=self.backspace)
 
- 		self.button['period'] = tk.Button(self, text='.', padx=41, pady=20, command=lambda:self.arithmetic('.'))
- 		self.button['zero'] = tk.Button(self, text='0', padx=40, pady=20, command=lambda:self.arithmetic(0))
- 		self.equal_button = tk.Button(self, text='=', padx=39, pady=20, command=self.equal)
- 		self.button['add'] = tk.Button(self, text='+', padx=34, pady=20, command=lambda:self.arithmetic('+'))
+ 		self.button['seven'] = tk.Button(self.button_frame, text='7', font=font, padx=37, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp(7))
+ 		self.button['eight'] = tk.Button(self.button_frame, text='8', font=font, padx=37, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp(8))
+ 		self.button['nine'] = tk.Button(self.button_frame, text='9', font=font, padx=37, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp(9))
+ 		self.button['divide'] = tk.Button(self.button_frame, text=u'\u00F7', font=font, padx=33, pady=20, relief=tk.FLAT, background=function_bg, foreground=num_button_fg, command=lambda:self.integer_inp("\u00F7"))
+
+ 		self.button['four'] = tk.Button(self.button_frame, text='4', font=font, padx=37, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp(4))
+ 		self.button['five'] = tk.Button(self.button_frame, text='5', font=font, padx=37, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp(5))
+ 		self.button['six'] = tk.Button(self.button_frame, text='6', font=font, padx=37, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp(6))
+ 		self.button['multiply'] = tk.Button(self.button_frame, text=u'\u00D7', font=font, padx=33, pady=20, relief=tk.FLAT, background=function_bg, foreground=num_button_fg, command=lambda:self.integer_inp('\u00D7'))
+
+ 		self.button['one'] = tk.Button(self.button_frame, text='1', font=font, padx=37, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp(1))
+ 		self.button['two'] = tk.Button(self.button_frame, text='2', font=font, padx=37, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp(2))
+ 		self.button['three'] = tk.Button(self.button_frame, text='3', font=font, padx=37, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp(3))
+ 		self.button['substract'] = tk.Button(self.button_frame, text='-', font=font, padx=34, pady=20, relief=tk.FLAT, background=function_bg, foreground=num_button_fg, command=lambda:self.integer_inp('-'))
+
+ 		self.button['period'] = tk.Button(self.button_frame, text='.', font=font, padx=39, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp('.'))
+ 		self.button['zero'] = tk.Button(self.button_frame, text='0', font=font, padx=37, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=lambda:self.integer_inp(0))
+ 		self.equal_button = tk.Button(self.button_frame, text='=', font=font, padx=36, pady=20, relief=tk.FLAT, background=num_button_bg, foreground=num_button_fg, command=self.equal)
+ 		self.button['add'] = tk.Button(self.button_frame, text='+', font=font, padx=33, pady=20, relief=tk.FLAT, background=function_bg, foreground=num_button_fg, command=lambda:self.integer_inp('+'))
  
- 		self.button['percent'].grid(row=1, column=0)
  		self.button['open_bracket'].grid(row=1, column=1)
  		self.button['close_bracket'].grid(row=1, column=2)
- 		self.clear_button.grid(row=1, column=3)
+ 		self.button_cancel_everything.grid(row=1, column=0)
+ 		self.back_button.grid(row=1, column=3)
 
  		self.button['seven'].grid(row=2, column=0)
  		self.button['eight'].grid(row=2, column=1)
@@ -61,32 +77,53 @@ class calculator(tk.Frame):
  		self.equal_button.grid(row=5, column=2)
  		self.button['add'].grid(row=5, column=3)
 
- 		self.clear()
+ 		self.clear_all()
+ 
+ 	def clear_all(self):
+ 		self.old = ''
+ 		self.expression.set('')
 
- 	def clear(self):
- 		self.current = self.display.get(0.0, tk.END)
- 		self.display.delete('1.0', 'end')
+ 	def backspace(self):
+ 		expression = self.expression.get()
+ 		integer = list(expression)
+ 		try:
+ 			del integer[-1]
+ 		except IndexError:
+ 			return
+ 		else:
+	 		new_integer = ''.join(integer)
+	 		self.expression.set(new_integer)
+	 		self.old = new_integer
  		
+ 	def integer_inp(self, number):
+
+ 		if self.old == '':
+ 			self.expression.set(number)
+ 			self.old = number
+ 		else:
+ 			self.new = str(self.old) + str(number)
+ 			self.expression.set(self.new)
+ 			self.old = self.new
+
  		
- 	def arithmetic(self, number):
- 		
- 		self.display.insert(tk.INSERT, number)
 
  	def equal(self):
- 		cmd = self.display.get(1.0, 'end').strip()
- 		if cmd:
- 			try:
- 				output = str(eval(cmd))
- 			except Exception as e:
- 				output = str(e)
+ 		cmd = self.expression.get().strip()
+ 		
+ 		if '\u00F7' or '\u00D7' in cmd:
+ 			cmd = cmd.replace("\u00F7", "/")
+ 			cmd = cmd.replace("\u00D7", "*")
 
- 		#self.display.delete(tk.END, 1.0)
- 		self.display.insert(tk.END, '\n' + output)
+ 		else:
+ 			cmd = cmd
+
+ 		try:
+ 			output = str(eval(cmd))
+ 		except Exception as e:
+ 			output = 'Syntax Error'
+
+ 		self.expression.set(output)
+ 		self.old = output
 
 
  		
-
-
-
-
-
