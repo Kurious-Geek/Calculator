@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
+import math
 
 class calculator(tk.Frame):
  	def __init__(self, parent, *args, **kwargs):
@@ -8,24 +10,33 @@ class calculator(tk.Frame):
 
  		self.button = {}
  		self.old = ''
+ 		self.equation = tk.StringVar()
  		self.expression = tk.StringVar()
 
+ 		self.a, self.b, self.c = '', '', ''
+
  		display_bg = '#181818'
- 		font = ('Times', 12)
+ 		font = ('Times', 12, 'bold')
  		num_button_bg = '#686868'
  		num_button_fg = 'white'
  		function_bg = '#585858'
 
- 		self.config(bg=display_bg)		
+ 		self.config(bg=display_bg)
 
- 		display_frame = tk.Frame(self, bg=display_bg)
- 		display_frame.grid(row=0, columnspan=4, sticky=tk.E)
+ 		equation_frame = tk.Frame(self, bg=display_bg)
+ 		equation_frame.grid(row=0, sticky=tk.W)
+
+ 		equation_label = ttk.Label(equation_frame, textvariable=self.equation, justify='right', cursor='ibeam', wraplength='360', background=display_bg, foreground='white')
+ 		equation_label.grid(row=0, sticky=tk.W, pady=5, padx=5)		
+
+ 		display_frame = tk.Frame(self, bg=display_bg,)
+ 		display_frame.grid(row=1, columnspan=4, sticky=tk.E)
 
  		self.display = ttk.Label(display_frame, font=('Droid', 25), textvariable=self.expression, justify='right', cursor='ibeam', wraplength='360', background=display_bg, foreground='white')
  		self.display.grid(row=0, sticky=tk.E, pady=20, padx=5)
 
  		self.button_frame = tk.Frame(self, bg=num_button_bg)
- 		self.button_frame.grid(row=1)
+ 		self.button_frame.grid(row=2)
  		
  		self.button['open_bracket'] = tk.Button(self.button_frame, text='(', font=font, padx=38.5, pady=20, relief=tk.FLAT, background=function_bg, foreground=num_button_fg, command=lambda:self.integer_inp('('))
  		self.button['close_bracket'] = tk.Button(self.button_frame, text=')', font=font, padx=38.5, pady=20, relief=tk.FLAT, background=function_bg, foreground=num_button_fg, command=lambda:self.integer_inp(')'))
@@ -80,6 +91,10 @@ class calculator(tk.Frame):
  		self.clear_all()
  
  	def clear_all(self):
+ 		eqn = self.equation.get()
+ 		if 'Quad' in eqn:
+ 			self.equation.set('')
+
  		self.old = ''
  		self.expression.set('')
 
@@ -96,7 +111,6 @@ class calculator(tk.Frame):
 	 		self.old = new_integer
  		
  	def integer_inp(self, number):
-
  		if self.old == '':
  			self.expression.set(number)
  			self.old = number
@@ -104,26 +118,118 @@ class calculator(tk.Frame):
  			self.new = str(self.old) + str(number)
  			self.expression.set(self.new)
  			self.old = self.new
-
  		
-
  	def equal(self):
- 		cmd = self.expression.get().strip()
- 		
- 		if '\u00F7' or '\u00D7' in cmd:
- 			cmd = cmd.replace("\u00F7", "/")
- 			cmd = cmd.replace("\u00D7", "*")
+ 		equation_type = self.equation.get()
+ 		if 'Quad' in equation_type:
+ 			value = self.expression.get()
 
- 		else:
- 			cmd = cmd
+ 			if 'value for a:' in value:
+ 				self.quad_equation_data('b')
+ 			elif 'value for b:' in value:
+ 				self.quad_equation_data('c')
+ 			elif 'value for c:' in value:
+ 				self.quad_equation_data('d')
 
+ 		else: 		
+	 		cmd = self.expression.get().strip()
+	 		
+	 		if '\u00F7' or '\u00D7' in cmd:
+	 			cmd = cmd.replace("\u00F7", "/")
+	 			cmd = cmd.replace("\u00D7", "*")
+
+	 		else:
+	 			cmd = cmd
+
+	 		try:
+	 			output = str(eval(cmd))
+	 		except Exception as e:
+	 			output = 'Syntax Error'
+
+	 		self.expression.set(output)
+	 		self.old = output
+
+ 	def quad_equation_data(self, value_type):
+ 		set_equation = self.equation.set('Quad')
+		
+ 		a_value = "value for a: "
+ 		b_value = "value for b: "
+ 		c_value = "value for c: "	
+
+ 		if value_type == 'a':
+	 		self.expression.set(a_value)
+	 		self.old = a_value
+
+ 		elif value_type == 'b':
+
+	 		a = self.expression.get()
+	 		a = a.replace('value for a:', '')
+	 		a = a.replace(' ', '')
+	 		self.a = a
+
+	 		self.expression.set(b_value)
+	 		self.old = b_value
+
+	 	elif value_type == 'c':
+
+	 		b = self.expression.get()
+	 		b = b.replace('value for b:', '')
+	 		b = b.replace(' ', '')
+	 		self.b = b
+
+	 		self.expression.set(c_value)
+	 		self.old = c_value
+
+	 	elif value_type == 'd':
+
+	 		c = self.expression.get()
+	 		c = c.replace('value for c: ', '')
+	 		c = c.replace(' ', '')
+	 		self.c = c
+	 		
+	 		solution = self.quadratic_solution()
+
+	 		if not hasattr(self, 'root'):
+	 			self.expression.set('Complex Number')
+	 		elif solution == 'Complex Number':
+	 			self.expression.set('Complex Number')
+	 		else:
+	 			x1, x2 = solution
+	 			self.expression.set('x1 = %0.4f, x2 = %0.4f' % (x1, x2))
+
+ 	def quadratic_solution(self):
+ 		a, b, c = float(self.a), float(self.b), float(self.c) 
+
+ 		y = (b*b - 4 * a * c)
  		try:
- 			output = str(eval(cmd))
- 		except Exception as e:
- 			output = 'Syntax Error'
+ 			z = math.sqrt(y)
+ 		except ValueError:
+ 			return 'Complex Number'
+ 		else:
+ 			X_1 = (-b + z)/(2 * a)
+ 			X_2 = (-b - z)/(2 * a)
 
- 		self.expression.set(output)
- 		self.old = output
+ 			self.root = X_1, X_2
+ 			return self.root
 
 
- 		
+class Menu(tk.Menu):
+	def __init__(self, parent, callbacks, **kwargs):
+		super().__init__(parent, **kwargs)
+
+		self.callbacks = callbacks
+
+		file_menu = tk.Menu(self, tearoff=False)
+
+		file_menu.add_command(label='Conversion', command=self)
+		file_menu.add_command(label='Exit', command=self.callbacks['exit'])
+
+		self.add_cascade(label='File', menu=file_menu)
+
+		equation_menu = tk.Menu(self, tearoff=False)
+
+		equation_menu.add_command(label='Quadratic', command=self.callbacks['quad_equation'])
+
+		self.add_cascade(label='Equation', menu=equation_menu)
+
+
